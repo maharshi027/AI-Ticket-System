@@ -2,12 +2,12 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import CheckAuth from "./components/CheckAuth";
-import Tickets from "./pages/Tickets";
-import Ticket from "./pages/Ticket";
-import Login from "./pages/Login";
-import Signup from "./pages/Signup";
-import Admin from "./pages/Admin";
+import CheckAuth from "./components/CheckAuth.jsx";
+import Tickets from "./pages/Tickets.jsx";
+import Ticket from "./pages/Ticket.jsx";
+import Login from "./pages/Login.jsx";
+import Signup from "./pages/Signup.jsx";
+import Admin from "./pages/Admin.jsx";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
