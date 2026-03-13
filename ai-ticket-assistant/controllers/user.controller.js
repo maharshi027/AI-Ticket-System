@@ -15,10 +15,14 @@ export const signup = async (req, res) => {
       skills,
     });
 
-    await inngest.send({
-      name: "user/signup",
-      data: { email },
-    });
+    try {
+      await inngest.send({
+        name: "user/signup",
+        data: { email },
+      });
+    } catch (inngestErr) {
+      console.warn("Inngest event skipped (Dev Server offline or missing keys)");
+    }
 
     const token = jwt.sign(
       {

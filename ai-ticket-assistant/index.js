@@ -12,7 +12,7 @@ import dotenv from 'dotenv'
 
 dotenv.config();
 
-
+console.log("Restarting with new INNGEST envs AGAIN!");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
