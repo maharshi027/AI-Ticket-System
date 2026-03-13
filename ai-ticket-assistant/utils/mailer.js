@@ -1,8 +1,8 @@
 import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';
+import jwt from 'jsonwebtoken';
 dotenv.config();
 
-// Create the transporter using environment variables (defaults map to the MAILTRAP Sandbox)
 export const transporter = nodemailer.createTransport({
   host: process.env.MAILTRAP_SMTP_HOST,
   port: process.env.MAILTRAP_SMTP_PORT,
@@ -12,10 +12,15 @@ export const transporter = nodemailer.createTransport({
   }
 });
 
-/**
- * Send a welcome or registration email 
- * @param {string} toEmail User's email
- */
+// Generate Tokens
+export const generateAccessToken = (userId, role) => {
+  return jwt.sign({ _id: userId, role }, process.env.JWT_SECRET, { expiresIn: '15m' });
+};
+
+export const generateRefreshToken = (userId, role) => {
+  return jwt.sign({ _id: userId, role }, process.env.JWT_SECRET, { expiresIn: '7d' });
+};
+
 export const sendWelcomeEmail = async (toEmail) => {
   try {
     const info = await transporter.sendMail({
