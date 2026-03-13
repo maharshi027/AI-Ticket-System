@@ -38,6 +38,23 @@ export const sendWelcomeEmail = async (toEmail) => {
   }
 };
 
+export const sendMail = async (toEmail, subject, text) => {
+  try {
+    const info = await transporter.sendMail({
+      from: '"AI Ticket System" <noreply@aiticket.local>',
+      to: toEmail,
+      subject,
+      text,
+      html: `<p>${text.replace(/\n/g, '<br/>')}</p>`,
+    });
+    console.log("Custom Mail sent: %s", info.messageId);
+    return info;
+  } catch (error) {
+    console.error("Error sending custom mail:", error);
+    throw error;
+  }
+};
+
 /**
  * Send a login activity alert
  * @param {string} toEmail User's email
