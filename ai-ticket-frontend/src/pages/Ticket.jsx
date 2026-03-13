@@ -1,5 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { 
+  ArrowLeft, 
+  SendHorizontal, 
+  Calendar, 
+  AlertCircle, 
+  User, 
+  Clock,
+  MessageSquare
+} from 'lucide-react';
 
 const Ticket = () => {
   const { id } = useParams();
@@ -54,7 +63,7 @@ const Ticket = () => {
       });
       if (res.ok) {
         setNewNote("");
-        fetchTicketAndNotes(); // Refresh notes
+        fetchTicketAndNotes();
       }
     } catch (error) {
       console.error(error);
@@ -63,96 +72,158 @@ const Ticket = () => {
     }
   };
 
-  if (loading) return <div className="min-h-screen flex justify-center items-center"><span className="loading loading-spinner loading-lg text-primary"></span></div>;
-  if (!ticket) return <div className="min-h-screen flex justify-center items-center"><div className="text-xl">Ticket not found</div></div>;
+  if (loading) return (
+    <div className="min-h-screen flex flex-col justify-center items-center bg-[#f8fafc] gap-4">
+      <span className="loading loading-ring loading-lg text-primary"></span>
+      <p className="text-slate-500 font-medium animate-pulse">Loading your conversation...</p>
+    </div>
+  );
+
+  if (!ticket) return (
+    <div className="min-h-screen flex flex-col justify-center items-center bg-[#f8fafc]">
+      <div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-200 text-center">
+        <h2 className="text-2xl font-bold text-slate-800">Ticket not found</h2>
+        <p className="text-slate-500 mt-2 mb-6">This ticket may have been deleted or moved.</p>
+        <Link to="/" className="btn btn-primary rounded-xl">Go Back Home</Link>
+      </div>
+    </div>
+  );
 
   return (
-    <div className="min-h-screen bg-base-200 p-4 lg:p-8">
-      <div className="max-w-6xl mx-auto flex flex-col gap-6">
-        
-        {/* Header */}
-        <div className="flex items-center gap-4">
-          <Link to="/" className="btn btn-circle btn-ghost">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
-          </Link>
-          <h1 className="text-2xl font-bold flex-1 truncate">{ticket.title}</h1>
-          <span className={`badge ${ticket.status === 'Done' ? 'badge-success' : ticket.status === 'In-Progress' ? 'badge-warning' : 'badge-ghost'} badge-lg font-semibold`}>
-            {ticket.status}
-          </span>
+    <div className="min-h-screen bg-[#f8fafc] flex flex-col">
+      {/* Top Navigation Bar */}
+      <nav className="bg-white border-b border-slate-200 px-6 py-4 sticky top-0 z-10">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Link to="/" className="p-2 hover:bg-slate-100 rounded-xl transition-colors text-slate-500">
+              <ArrowLeft size={20} />
+            </Link>
+            <div>
+              <h1 className="text-lg font-bold text-slate-900 leading-tight truncate max-w-xs md:max-w-md lg:max-w-xl">
+                {ticket.title}
+              </h1>
+              <div className="flex items-center gap-2 mt-0.5">
+                <span className="text-xs text-slate-400 font-medium uppercase tracking-wider">#{id.slice(-6)}</span>
+                <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-tighter ${
+                  ticket.status === 'Done' ? 'bg-emerald-50 text-emerald-600' : 
+                  ticket.status === 'In-Progress' ? 'bg-amber-50 text-amber-600' : 'bg-slate-100 text-slate-500'
+                }`}>
+                  {ticket.status}
+                </span>
+              </div>
+            </div>
+          </div>
         </div>
+      </nav>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left Col: Details */}
-          <div className="lg:col-span-1 space-y-6">
-            <div className="card bg-base-100 shadow-xl border border-base-200">
-              <div className="card-body">
-                <h2 className="card-title text-base mb-4">Ticket Details</h2>
-                <div className="space-y-4 text-sm">
-                  <div>
-                    <span className="opacity-50 block text-xs uppercase tracking-wide">Created</span>
-                    <span className="font-medium">{new Date(ticket.createdAt).toLocaleString()}</span>
-                  </div>
-                  <div>
-                    <span className="opacity-50 block text-xs uppercase tracking-wide">Priority</span>
-                    <span className={`badge badge-sm mt-1 ${ticket.priority === 'High' ? 'badge-error' : ticket.priority === 'Medium' ? 'badge-warning' : 'badge-success'}`}>
-                      {ticket.priority}
+      <div className="flex-1 max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-0 lg:gap-8 p-0 lg:p-8">
+        
+        {/* SIDEBAR: Metadata (Left Column) */}
+        <aside className="lg:col-span-4 space-y-6 order-2 lg:order-1 p-6 lg:p-0">
+          <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+            <div className="p-6">
+              <h3 className="text-sm font-bold text-slate-900 mb-6 flex items-center gap-2">
+                <AlertCircle size={16} className="text-primary" /> Ticket Information
+              </h3>
+              
+              <div className="space-y-6">
+                <div>
+                  <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest block mb-2">Description</label>
+                  <p className="text-sm text-slate-600 leading-relaxed bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                    {ticket.description}
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100">
+                    <label className="text-[10px] font-black text-slate-400 uppercase block mb-1">Priority</label>
+                    <span className={`text-xs font-bold ${ticket.priority === 'High' ? 'text-red-600' : 'text-slate-700'}`}>
+                      {ticket.priority || 'Medium'}
                     </span>
                   </div>
-                  <div>
-                    <span className="opacity-50 block text-xs uppercase tracking-wide">Description</span>
-                    <p className="mt-1 whitespace-pre-wrap">{ticket.description}</p>
+                  <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100">
+                    <label className="text-[10px] font-black text-slate-400 uppercase block mb-1">Created</label>
+                    <span className="text-xs font-bold text-slate-700">
+                      {new Date(ticket.createdAt).toLocaleDateString()}
+                    </span>
                   </div>
                 </div>
               </div>
             </div>
           </div>
+        </aside>
 
-          {/* Right Col: Notes / Activity */}
-          <div className="lg:col-span-2 card bg-base-100 shadow-xl border border-base-200 flex flex-col h-[70vh]">
-            <div className="card-header p-6 border-b border-base-200">
-              <h2 className="card-title text-base">Activity & Notes</h2>
-            </div>
-            
-            <div className="flex-1 overflow-y-auto p-6 space-y-4">
-              {notes.length === 0 ? (
-                <div className="text-center opacity-50 py-10">No notes yet. Start the conversation!</div>
-              ) : (
-                notes.map(note => {
-                  const isMine = note.createdBy?._id === user._id || note.createdBy?.email === user.email;
-                  return (
-                    <div key={note._id} className={`chat ${isMine ? 'chat-end' : 'chat-start'}`}>
-                      <div className="chat-image avatar placeholder">
-                        <div className="bg-neutral text-neutral-content rounded-full w-10">
-                          <span className="uppercase text-xs">{note.createdBy?.email?.charAt(0) || '?'}</span>
+        {/* MAIN: Chat/Activity (Right Column) */}
+        <div className="lg:col-span-8 flex flex-col h-[calc(100vh-160px)] min-h-[500px] order-1 lg:order-2 bg-white lg:rounded-3xl border-x lg:border border-slate-200 shadow-sm overflow-hidden">
+          
+          <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex items-center gap-2">
+            <MessageSquare size={16} className="text-slate-400" />
+            <span className="text-sm font-bold text-slate-700">Conversation History</span>
+          </div>
+
+          {/* Messages Area */}
+          <div className="flex-1 overflow-y-auto p-6 space-y-8 bg-white">
+            {notes.length === 0 ? (
+              <div className="h-full flex flex-col items-center justify-center opacity-40">
+                <div className="p-4 bg-slate-100 rounded-full mb-4">
+                  <MessageSquare size={32} />
+                </div>
+                <p className="text-sm font-medium">No activity yet</p>
+              </div>
+            ) : (
+              notes.map(note => {
+                const isMine = note.createdBy?._id === user._id || note.createdBy?.email === user.email;
+                return (
+                  <div key={note._id} className={`flex ${isMine ? 'justify-end' : 'justify-start'}`}>
+                    <div className={`flex gap-3 max-w-[85%] ${isMine ? 'flex-row-reverse' : 'flex-row'}`}>
+                      <div className="flex-shrink-0">
+                        <div className="w-8 h-8 rounded-xl bg-slate-900 text-white flex items-center justify-center text-[10px] font-bold uppercase shadow-lg">
+                          {note.createdBy?.email?.charAt(0) || <User size={14}/>}
                         </div>
                       </div>
-                      <div className="chat-header opacity-50 text-xs mb-1">
-                        {note.createdBy?.email || 'Unknown'} 
-                        <time className="ml-2">{new Date(note.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</time>
-                      </div>
-                      <div className={`chat-bubble ${isMine ? 'chat-bubble-primary' : 'chat-bubble-base-300'} text-sm`}>
-                        {note.content}
+                      <div className={`space-y-1 ${isMine ? 'items-end' : 'items-start'}`}>
+                        <div className="flex items-center gap-2 px-1">
+                          <span className="text-[10px] font-bold text-slate-500">{note.createdBy?.email?.split('@')[0]}</span>
+                          <span className="text-[10px] text-slate-300 font-medium">
+                             {new Date(note.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          </span>
+                        </div>
+                        <div className={`p-4 rounded-2xl text-sm leading-relaxed shadow-sm ${
+                          isMine 
+                            ? 'bg-primary text-white rounded-tr-none' 
+                            : 'bg-slate-100 text-slate-800 rounded-tl-none'
+                        }`}>
+                          {note.content}
+                        </div>
                       </div>
                     </div>
-                  );
-                })
-              )}
-            </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
 
-            <div className="p-4 border-t border-base-200 bg-base-100 rounded-b-2xl">
-              <form onSubmit={handleAddNote} className="flex gap-2">
-                <input 
-                  type="text" 
-                  placeholder="Type a note..." 
-                  className="input input-bordered flex-1 focus:outline-none focus:ring-2 focus:ring-primary/50"
-                  value={newNote}
-                  onChange={(e) => setNewNote(e.target.value)}
-                />
-                <button type="submit" className="btn btn-primary px-8" disabled={posting || !newNote.trim()}>
-                  {posting ? <span className="loading loading-spinner loading-sm"></span> : "Send"}
-                </button>
-              </form>
-            </div>
+          {/* Input Area */}
+          <div className="p-4 bg-white border-t border-slate-100">
+            <form onSubmit={handleAddNote} className="relative flex items-center">
+              <input 
+                type="text" 
+                placeholder="Type your message..." 
+                className="input input-bordered w-full pr-16 bg-slate-50 border-slate-200 focus:bg-white focus:border-primary rounded-2xl h-14 transition-all"
+                value={newNote}
+                onChange={(e) => setNewNote(e.target.value)}
+              />
+              <button 
+                type="submit" 
+                className="btn btn-primary btn-sm absolute right-3 rounded-xl h-10 px-4 normal-case" 
+                disabled={posting || !newNote.trim()}
+              >
+                {posting ? <span className="loading loading-spinner"></span> : <><span className="hidden sm:inline">Reply</span> <SendHorizontal size={16} className="ml-1"/></>}
+              </button>
+            </form>
+            <p className="text-[10px] text-center text-slate-400 mt-3 font-medium uppercase tracking-widest">
+              Visible to you and support staff
+            </p>
           </div>
         </div>
       </div>
