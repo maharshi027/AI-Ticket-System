@@ -28,7 +28,7 @@ app.use("/api/inngest", serve({
   functions: [onUserSignUp, onTicketCreated]
 }));
 mongoose
-  .connect(process.env.MOGNO_URI)
+  .connect(process.env.MONGO_URI)
   .then(() => {
     console.log("MongoDB connected successfully !");
     app.listen(PORT, () =>
