@@ -26,10 +26,9 @@ const Signup = () => {
       if(res.ok){
         localStorage.setItem("token", data.token)
         localStorage.setItem("user", JSON.stringify(data.user))
-        navigate("/")
-      } else {
-        alert(data.message || "Signup Failed")
-      }
+        alert("Signup Successful")
+        navigate("/login")
+      } 
     } catch (error) {
       alert("Signup - Something went Wrong")
     }
