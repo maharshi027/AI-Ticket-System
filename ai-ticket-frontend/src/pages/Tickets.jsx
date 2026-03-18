@@ -10,6 +10,7 @@ import {
   ShieldCheckIcon,
   X, // Added missing import
   PenLine, // Added missing import
+  BarChartIcon,
 } from "lucide-react";
 
 function Tickets() {
@@ -18,6 +19,10 @@ function Tickets() {
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [statusFilter, setStatusFilter] = useState("All");
+  const [priorityFilter, setPriorityFilter] = useState("All");
 
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
@@ -25,12 +30,23 @@ function Tickets() {
 
   const fetchTickets = async () => {
     try {
-      const res = await fetch(`${import.meta.env.VITE_SERVER_URL}/tickets`, {
+      setFetching(true);
+      const queryParams = new URLSearchParams({
+        page,
+        limit: 10,
+        status: statusFilter,
+        priority: priorityFilter,
+        search: searchTerm
+      });
+      const res = await fetch(`${import.meta.env.VITE_SERVER_URL}/tickets?${queryParams}`, {
         headers: { Authorization: `Bearer ${token}` },
         method: "GET",
       });
       const data = await res.json();
-      setTickets(Array.isArray(data) ? data : []);
+      setTickets(Array.isArray(data) ? data : (data.tickets || []));
+      if (!Array.isArray(data) && data.pagination) {
+        setTotalPages(data.pagination.totalPages || 1);
+      }
     } catch (error) {
       console.error("Failed to Fetch Tickets: ", error);
     } finally {
@@ -39,8 +55,11 @@ function Tickets() {
   };
 
   useEffect(() => {
-    fetchTickets();
-  }, []);
+    const timer = setTimeout(() => {
+      fetchTickets();
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [page, statusFilter, priorityFilter, searchTerm]);
 
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -73,11 +92,6 @@ function Tickets() {
     localStorage.clear();
     navigate("/login");
   };
-
-  const filteredTickets = tickets.filter((t) =>
-    t.title.toLowerCase().includes(searchTerm.toLowerCase()),
-  );
-
   return (
     <div className="flex min-h-screen bg-[#f8fafc]">
       {/* --- SIDEBAR --- */}
@@ -91,11 +105,19 @@ function Tickets() {
 
         <nav className="flex-1 space-y-2">
           <Link
-            to="/tickets"
+            to="/"
             className="flex items-center gap-3 p-3 bg-white/10 rounded-lg text-white"
           >
             <LayoutDashboardIcon size={20} /> Dashboard
           </Link>
+          {(user?.role === "admin" || user?.role === "moderator") && (
+            <Link
+              to="/analytics"
+              className="flex items-center gap-3 p-3 hover:bg-white/5 rounded-lg transition-colors text-slate-400 hover:text-white"
+            >
+              <BarChartIcon size={20} /> Analytics
+            </Link>
+          )}
           {user?.role === "admin" && (
             <Link
               to="/admin"
@@ -139,25 +161,40 @@ function Tickets() {
         </header>
 
         {/* Search & Stats */}
-        <div className="mb-8 flex flex-col md:flex-row gap-4">
-          <div className="relative flex-1">
+        <div className="mb-6 flex flex-col md:flex-row gap-4 items-center">
+          <div className="relative flex-1 w-full">
             <SearchIcon
               className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
               size={18}
             />
             <input
               type="text"
-              placeholder="Search by title..."
+              placeholder="Search tickets..."
               className="input input-bordered w-full pl-12 bg-white border-slate-200 focus:border-primary rounded-xl"
-              onChange={(e) => setSearchTerm(e.target.value)}
+              value={searchTerm}
+              onChange={(e) => { setSearchTerm(e.target.value); setPage(1); }}
             />
           </div>
-          <div className="flex gap-2 items-center bg-white px-4 py-2 rounded-xl border border-slate-200">
-            <span className="text-sm font-medium text-slate-500">Total:</span>
-            <span className="badge badge-ghost font-bold">
-              {tickets.length}
-            </span>
-          </div>
+          <select 
+            className="select select-bordered bg-white" 
+            value={statusFilter} 
+            onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
+          >
+            <option value="All">All Statuses</option>
+            <option value="To-Do">To-Do</option>
+            <option value="In-Progress">In-Progress</option>
+            <option value="Done">Done</option>
+          </select>
+          <select 
+            className="select select-bordered bg-white" 
+            value={priorityFilter} 
+            onChange={(e) => { setPriorityFilter(e.target.value); setPage(1); }}
+          >
+            <option value="All">All Priorities</option>
+            <option value="Low">Low</option>
+            <option value="Medium">Medium</option>
+            <option value="High">High</option>
+          </select>
         </div>
 
         {/* Tickets Grid */}
@@ -167,7 +204,7 @@ function Tickets() {
               <div key={i} className="h-48 bg-slate-200 rounded-2xl"></div>
             ))}
           </div>
-        ) : filteredTickets.length === 0 ? (
+        ) : tickets.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 bg-white rounded-3xl border-2 border-dashed border-slate-200">
             <div className="bg-slate-50 p-6 rounded-full mb-4">
               <TicketIcon size={48} className="text-slate-300" />
@@ -180,8 +217,9 @@ function Tickets() {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-            {filteredTickets.map((ticket) => (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mb-8">
+              {tickets.map((ticket) => (
               <Link
                 to={`/ticket/${ticket._id}`}
                 key={ticket._id}
@@ -216,7 +254,33 @@ function Tickets() {
                 </div>
               </Link>
             ))}
-          </div>
+            </div>
+            
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+               <div className="flex justify-center mt-8">
+                 <div className="join shadow-sm border border-slate-200 rounded-xl overflow-hidden bg-white">
+                   <button 
+                     className="join-item btn bg-white border-none hover:bg-slate-50" 
+                     onClick={() => setPage(p => Math.max(1, p - 1))}
+                     disabled={page === 1}
+                   >
+                     «
+                   </button>
+                   <button className="join-item btn bg-white border-none cursor-default hover:bg-white text-slate-700 font-bold">
+                     Page {page} of {totalPages}
+                   </button>
+                   <button 
+                     className="join-item btn bg-white border-none hover:bg-slate-50" 
+                     onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                     disabled={page === totalPages}
+                   >
+                     »
+                   </button>
+                 </div>
+               </div>
+            )}
+          </>
         )}
       </main>
 

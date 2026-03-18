@@ -34,7 +34,7 @@ const Admin = () => {
       });
       if (res.ok) {
         const data = await res.json();
-        setTickets(Array.isArray(data) ? data : []);
+        setTickets(Array.isArray(data) ? data : (data.tickets || []));
       }
     } catch (error) {
       console.error("Failed to fetch all tickets", error);

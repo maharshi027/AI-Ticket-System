@@ -14,6 +14,7 @@ const Ticket = () => {
   const { id } = useParams();
   const [ticket, setTicket] = useState(null);
   const [notes, setNotes] = useState([]);
+  const [history, setHistory] = useState([]);
   const [newNote, setNewNote] = useState("");
   const [loading, setLoading] = useState(true);
   const [posting, setPosting] = useState(false);
@@ -27,9 +28,10 @@ const Ticket = () => {
   const fetchTicketAndNotes = async () => {
     try {
       const hdrs = { Authorization: `Bearer ${token}` };
-      const [ticketRes, notesRes] = await Promise.all([
+      const [ticketRes, notesRes, historyRes] = await Promise.all([
         fetch(`${import.meta.env.VITE_SERVER_URL}/tickets/${id}`, { headers: hdrs }),
-        fetch(`${import.meta.env.VITE_SERVER_URL}/notes/${id}`, { headers: hdrs })
+        fetch(`${import.meta.env.VITE_SERVER_URL}/notes/${id}`, { headers: hdrs }),
+        fetch(`${import.meta.env.VITE_SERVER_URL}/tickets/${id}/history`, { headers: hdrs })
       ]);
       
       if (ticketRes.ok) {
@@ -40,6 +42,11 @@ const Ticket = () => {
       if (notesRes.ok) {
         const notesData = await notesRes.json();
         setNotes(notesData.notes || []);
+      }
+
+      if (historyRes.ok) {
+        const historyData = await historyRes.json();
+        setHistory(historyData || []);
       }
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -148,6 +155,39 @@ const Ticket = () => {
                     </span>
                   </div>
                 </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Timeline Component */}
+          <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden mt-6">
+            <div className="p-6">
+              <h3 className="text-sm font-bold text-slate-900 mb-6 flex items-center gap-2">
+                <Clock size={16} className="text-primary" /> Activity Timeline
+              </h3>
+              <div className="space-y-4">
+                {history.length === 0 ? (
+                  <p className="text-xs text-slate-400 text-center py-4">No activity yet</p>
+                ) : (
+                  <ul className="steps steps-vertical w-full text-xs">
+                    {history.map((item, idx) => (
+                      <li key={item._id} className="step step-primary" data-content={idx === 0 ? "●" : "○"}>
+                        <div className="text-left ml-2 w-full">
+                          <p className="font-bold text-slate-800">{item.action}</p>
+                          <p className="text-[10px] text-slate-500 mb-1">
+                            by {item.changedBy?.email} • {new Date(item.createdAt).toLocaleString([], { dateStyle: "short", timeStyle: "short" })}
+                          </p>
+                          {item.oldValue && item.newValue && (
+                            <p className="text-[10px] bg-slate-50 px-2 py-1 rounded border border-slate-100 italic text-slate-600">
+                              <span className="line-through mr-1 opacity-50">{String(item.oldValue)}</span>
+                              <span className="text-primary font-bold">→ {String(item.newValue)}</span>
+                            </p>
+                          )}
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
             </div>
           </div>
