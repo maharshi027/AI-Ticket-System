@@ -6,14 +6,14 @@ An **AI-powered Ticket Management System** designed to automatically receive, an
 
 ## 🚀 Features
 
-* 🤖 **AI-Based Ticket Triage** – Automatically classifies and prioritizes tickets
-* 🧠 **Skill & Role Matching** – Assigns tickets based on job role and skill requirements
-* ⏱ **Priority Detection** – Identifies urgent, high-impact issues
-* 📄 **Structured JSON Responses** – Clean AI output for backend processing
-* 🔐 **Authentication & Authorization** – Secure access using JWT
-* 📊 **Ticket Status Tracking** – Open, In Progress, Resolved, Closed
-* 📨 **Automated Responses** – AI-generated acknowledgements and updates
-* 🌐 **RESTful API Architecture**
+- 🤖 **AI-Based Ticket Triage** – Automatically classifies and prioritizes tickets
+- 🧠 **Skill & Role Matching** – Assigns tickets based on job role and skill requirements
+- ⏱ **Priority Detection** – Identifies urgent, high-impact issues
+- 📄 **Structured JSON Responses** – Clean AI output for backend processing
+- 🔐 **Authentication & Authorization** – Secure access using JWT
+- 📊 **Ticket Status Tracking** – Open, In Progress, Resolved, Closed
+- 📨 **Automated Responses** – AI-generated acknowledgements and updates
+- 🌐 **RESTful API Architecture**
 
 ---
 
@@ -21,22 +21,22 @@ An **AI-powered Ticket Management System** designed to automatically receive, an
 
 ### Frontend
 
-* React.js
-* Vite
-* Tailwind CSS
-* Axios
+- React.js
+- Vite
+- Tailwind CSS
+- Axios
 
 ### Backend
 
-* Node.js
-* Express.js
-* JWT Authentication
-* MongoDB (Mongoose)
+- Node.js
+- Express.js
+- JWT Authentication
+- MongoDB (Mongoose)
 
 ### AI / Automation
 
-* AI Prompt-based Ticket Triage Agent
-* JSON-only AI Responses
+- AI Prompt-based Ticket Triage Agent
+- JSON-only AI Responses
 
 ---
 
@@ -44,19 +44,25 @@ An **AI-powered Ticket Management System** designed to automatically receive, an
 
 ```
 AI-Ticket-System/
-├── client/              # Frontend (React)
-│   ├── src/
-│   └── public/
-├── server/              # Backend (Node + Express)
+├── backend/             # Backend (Node + Express)
 │   ├── controllers/
 │   ├── models/
 │   ├── routes/
-│   ├── middleware/
-│   └── utils/
-├── prompts/             # AI system prompts
-├── .env.example
-├── package.json
-└── README.md
+│   ├── middlewares/
+│   ├── inngest/         # Inngest task automation
+│   ├── utils/           # AI & Mailer utilities
+│   ├── package.json
+│   └── index.js
+├── frontend/            # Frontend (React + Vite)
+│   ├── src/
+│   │   ├── components/
+│   │   ├── pages/
+│   │   └── index.css
+│   ├── public/
+│   ├── package.json
+│   └── vite.config.js
+├── README.md
+└── .gitignore
 ```
 
 ---
@@ -73,16 +79,24 @@ cd ai-ticket-system
 ### 2️⃣ Backend Setup
 
 ```bash
-cd server
+cd backend
 npm install
 ```
 
 Create a `.env` file:
 
 ```env
-PORT=XXXX
-MONGO_URI=mongodb_connection
-JWT_SECRET=secret_key
+PORT=5000
+MONGO_URI=mongodb_connection_string
+JWT_SECRET=your_secret_key
+SENDGRID_API_KEY=your_sendgrid_key
+INNGEST_EVENT_KEY=your_inngest_key
+```
+
+Install dependencies:
+
+```bash
+npm install
 ```
 
 Run backend:
@@ -91,13 +105,30 @@ Run backend:
 npm run dev
 ```
 
+To run Inngest dev server (in another terminal):
+
+```bash
+npm run inngest-dev
+```
+
 ---
 
 ### 3️⃣ Frontend Setup
 
 ```bash
-cd client
+cd frontend
 npm install
+```
+
+Create a `.env` file:
+
+```env
+VITE_API_URL=http://localhost:5000
+```
+
+Run frontend:
+
+```bash
 npm run dev
 ```
 
@@ -107,11 +138,11 @@ npm run dev
 
 The AI agent analyzes:
 
-* Ticket description
-* Required skills
-* Job role
-* Urgency keywords
-* Historical patterns
+- Ticket description
+- Required skills
+- Job role
+- Urgency keywords
+- Historical patterns
 
 ### Sample AI Response (Strict JSON)
 
@@ -129,9 +160,9 @@ The AI agent analyzes:
 
 ## 🔐 Authentication Flow
 
-* User login generates JWT
-* Token passed via Authorization Header
-* Middleware validates token
+- User login generates JWT
+- Token passed via Authorization Header
+- Middleware validates token
 
 ```http
 Authorization: Bearer <token>
@@ -153,11 +184,11 @@ Authorization: Bearer <token>
 
 ## 📈 Future Enhancements
 
-* SLA breach prediction
-* Email & Slack notifications
-* AI sentiment analysis
-* Admin dashboard with analytics
-* Multi-language ticket support
+- SLA breach prediction
+- Email & Slack notifications
+- AI sentiment analysis
+- Admin dashboard with analytics
+- Multi-language ticket support
 
 ---
 
@@ -182,8 +213,8 @@ This project is licensed under the **MIT License**.
 
 **Harshit**
 
-* GitHub: [https://github.com/maharshi027](https://github.com/maharshi027)
-* Email: [harshit.2327cseai120@kiet.edu](mailto:harshit.2327cseai120@kiet.edu)
+- GitHub: [https://github.com/maharshi027](https://github.com/maharshi027)
+- Email: [harshit.2327cseai120@kiet.edu](mailto:harshit.2327cseai120@kiet.edu)
 
 ---
 
